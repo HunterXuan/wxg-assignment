@@ -89,7 +89,7 @@ function fact(int $n): string
 该算法的优势是计算速度快，缺点在于实现过程不直观，不易理解。经测试以下代码计算 2000 的阶乘平均时间为 0.11 秒，大约是普通循环方法的一半耗时。
 
 ```php
-function fact_five(int $n): string
+function fact(int $n): string
 {
     $middleSquare = pow(floor($n / 2), 2);
     $result = $n & 1 == 1 ? 2 * $middleSquare * $n : 2 * $middleSquare;

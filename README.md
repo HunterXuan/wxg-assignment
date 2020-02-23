@@ -66,7 +66,7 @@ function fact(int $n): array
 
 ## 使用 BCMath 扩展
 
-BCMath 是 PHP 的一个数学扩展，支持对于用字符串表示的任意大小和精度的数字的二进制计算。由于是使用 C 实现的扩展，计算速度会比上面用 PHP 自行实现的快些。在我的笔记本上，同样是计算 2000 的阶乘，自行实现的需要 0.53718709945679 秒，使用 BCMath 耗时 0.19170379638672 秒。
+BCMath 是 PHP 的一个数学扩展，支持对于用字符串表示的任意大小和精度的数字的二进制计算。由于是使用 C 实现的扩展，计算速度会比上面用 PHP 自行实现的快些。在我的笔记本上，同样是计算 2000 的阶乘，自行实现的需要平均 0.5~0.6 秒，使用 BCMath 耗时 0.18~0.19 秒。
 
 ```php
 function fact(int $n): string
@@ -76,6 +76,27 @@ function fact(int $n): string
     while ($num <= $n) {
         $result = bcmul($result, $num);
         $num = bcadd($num, '1');
+    }
+
+    return $result;
+}
+```
+
+## 减少乘法运算
+
+乘法的计算速度通常要低于加减法运算，通过减少乘法的运算次数可以提高整体运算速度。对于 n 的阶乘，可以依次求出比 (n/2)^2 小 1、1+3、1+3+5... 的数值，再依次相乘得到目标值。
+
+该算法的优势是计算速度快，缺点在于实现过程不直观，不易理解。经测试以下代码计算 2000 的阶乘平均时间为 0.11 秒，大约是普通循环方法的一半耗时。
+
+```php
+function fact_five(int $n): string
+{
+    $middleSquare = pow(floor($n / 2), 2);
+    $result = $n & 1 == 1 ? 2 * $middleSquare * $n : 2 * $middleSquare;
+    $result = (string)$result;
+    for ($num = 1; $num < $n - 2; $num = $num + 2) {
+        $middleSquare = $middleSquare - $num;
+        $result = bcmul($result, (string)$middleSquare);
     }
 
     return $result;
